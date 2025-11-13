@@ -1,18 +1,23 @@
 {
-  "name": "backend",
+  "name": "delivery-backend",
   "version": "1.0.0",
+  "description": "API para o sistema de motoboys com MongoDB e Express",
+  "main": "server.js",
   "type": "module",
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js"
   },
+  "author": "Mr. Klaus Games",
+  "license": "MIT",
   "dependencies": {
-    "express": "^4.21.0",
-    "mongoose": "^8.8.0",
     "cors": "^2.8.5",
-    "dotenv": "^16.4.5"
+    "dotenv": "^16.3.1",
+    "express": "^4.19.0",
+    "mongoose": "^8.3.0"
   },
   "devDependencies": {
-    "nodemon": "^3.1.0"
+    "nodemon": "^3.0.1"
   }
 }
+
