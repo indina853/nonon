@@ -22,7 +22,14 @@ function User() {
       headers: { Authorization: "Bearer " + token },
     })
       .then((res) => res.json())
-      .then((data) => setUser(data))
+      .then((data) =>
+        setUser({
+          fullName: data.fullName || "",
+          email: data.email || "",
+          phone: data.phone || "",
+          username: data.username || "",
+        })
+      )
       .catch((err) => console.error(err));
   }, [token]);
 
@@ -76,6 +83,10 @@ function User() {
 
   return (
     <div style={{ maxWidth: "500px", margin: "auto" }}>
+      <h2>👤 Olá, {user.fullName?.split(" ")[0] || "Usuário"}!</h2>
+      <p style={{ opacity: 0.7, marginTop: -10 }}>
+        @{user.username || "carregando..."}
+      </p>
 
       <h3>Informações pessoais</h3>
 

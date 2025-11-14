@@ -23,7 +23,7 @@ router.post("/login", async (req, res) => {
 
 // ------------------- CADASTRO -------------------
 router.post("/register", async (req, res) => {
-  const { fullName, email, password } = req.body;
+  const { fullName, email, password, phone } = req.body;
 
   if (!fullName || !fullName.includes(" ")) {
     return res
@@ -31,26 +31,31 @@ router.post("/register", async (req, res) => {
       .json({ message: "Digite seu nome completo (nome e sobrenome)." });
   }
 
+  if (!phone) {
+    return res.status(400).json({ message: "Digite um número de telefone." });
+  }
+
   const exists = await User.findOne({ email });
   if (exists) return res.status(400).json({ message: "Email já cadastrado" });
 
   const hashed = await bcrypt.hash(password, 10);
 
-  // Gerar username baseado no nome + sobrenome
+  // Gerar username automático
   const [firstName, lastName] = fullName.toLowerCase().split(" ");
   const random = Math.floor(100 + Math.random() * 900);
   const username = `${firstName}.${lastName}_${random}`;
 
   const newUser = await User.create({
     fullName,
-    username,
     email,
     password: hashed,
+    phone,
+    username
   });
 
   res.json({
     message: "Conta criada!",
-    usernameGerado: username,
+    usernameGerado: username
   });
 });
 
@@ -87,5 +92,23 @@ router.put("/password", authMiddleware, async (req, res) => {
 
   res.json({ message: "Senha alterada!" });
 });
+
+/// ------------------- EXCLUIR CONTA -------------------
+router.delete("/delete", authMiddleware, async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const deleted = await User.findByIdAndDelete(userId);
+
+    if (!deleted) {
+      return res.status(404).json({ message: "Usuário não encontrado" });
+    }
+
+    res.json({ message: "Conta excluída com sucesso" });
+  } catch (err) {
+    res.status(500).json({ message: "Erro ao excluir conta" });
+  }
+});
+
 
 export default router;
