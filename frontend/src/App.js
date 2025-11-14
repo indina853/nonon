@@ -1,12 +1,11 @@
 import React, { useState } from "react";
 import Motoboys from "./Motoboys";
 import Pedidos from "./Pedidos";
-import Login from "./Login";
-import Register from "./Register";
+import Auth from "./Auth";
 import "./App.css";
 
 function App() {
-  const [menu, setMenu] = useState("login");
+  const [menu, setMenu] = useState("auth");
 
   return (
     <div className="app">
@@ -14,17 +13,10 @@ function App() {
         <h1>🚀 Delivery Manager</h1>
         <nav>
           <button
-            className={menu === "login" ? "ativo" : ""}
-            onClick={() => setMenu("login")}
+            className={menu === "auth" ? "ativo" : ""}
+            onClick={() => setMenu("auth")}
           >
-            Login
-          </button>
-
-          <button
-            className={menu === "register" ? "ativo" : ""}
-            onClick={() => setMenu("register")}
-          >
-            Cadastro
+            Login / Cadastro
           </button>
 
           <button
@@ -44,8 +36,7 @@ function App() {
       </header>
 
       <main>
-        {menu === "login" && <Login />}
-        {menu === "register" && <Register />}
+        {menu === "auth" && <Auth />}
         {menu === "motoboys" && <Motoboys />}
         {menu === "pedidos" && <Pedidos />}
       </main>
