@@ -4,9 +4,9 @@ import cors from "cors";
 import dotenv from "dotenv";
 dotenv.config();
 
-import motoboyRoutes from "./backend/routes/motoboys.js";
-import pedidoRoutes from "./backend/routes/pedidos.js";
-import authRoutes from "./backend/routes/auth.js";
+import motoboyRoutes from "./routes/motoboys.js";
+import pedidoRoutes from "./routes/pedidos.js";
+import authRoutes from "./routes/auth.js";
 
 dotenv.config();
 const app = express();
