@@ -11,32 +11,46 @@ function App() {
   // ------------------------ CARREGAR TEMA SALVO ------------------------
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme");
-
-    if (savedTheme) {
-      document.documentElement.setAttribute("data-theme", savedTheme);
-    } else {
-      document.documentElement.setAttribute("data-theme", "light");
-    }
+    document.documentElement.setAttribute(
+      "data-theme",
+      savedTheme || "light"
+    );
   }, []);
 
   // ------------------------ FUNÇÃO DE TROCA DE TEMA ------------------------
   const toggleTheme = () => {
     const currentTheme =
       document.documentElement.getAttribute("data-theme") || "light";
-
     const nextTheme = currentTheme === "dark" ? "light" : "dark";
 
     document.documentElement.setAttribute("data-theme", nextTheme);
     localStorage.setItem("theme", nextTheme);
   };
 
-  // ------------------------ LOGIN AUTO ------------------------
+  // ------------------------ RECUPERAR MENU SALVO ------------------------
   useEffect(() => {
+    const savedMenu = localStorage.getItem("menu");
     const token = localStorage.getItem("token");
-    if (token) setMenu("motoboys");
+
+    if (!token) {
+      setMenu("auth");
+      return;
+    }
+
+    if (savedMenu) setMenu(savedMenu);
+    else setMenu("motoboys");
   }, []);
 
-  const handleLoginSuccess = () => setMenu("motoboys");
+  // ------------------------ SALVAR MENU AO TROCAR ------------------------
+  const changeMenu = (newMenu) => {
+    setMenu(newMenu);
+    localStorage.setItem("menu", newMenu);
+  };
+
+  const handleLoginSuccess = () => {
+    changeMenu("motoboys");
+    localStorage.setItem("menu", "motoboys");
+  };
 
   return (
     <div className="app">
@@ -52,21 +66,21 @@ function App() {
           <nav>
             <button
               className={menu === "motoboys" ? "ativo" : ""}
-              onClick={() => setMenu("motoboys")}
+              onClick={() => changeMenu("motoboys")}
             >
               Motoboys
             </button>
 
             <button
               className={menu === "pedidos" ? "ativo" : ""}
-              onClick={() => setMenu("pedidos")}
+              onClick={() => changeMenu("pedidos")}
             >
               Pedidos
             </button>
 
             <button
               className={menu === "user" ? "ativo" : ""}
-              onClick={() => setMenu("user")}
+              onClick={() => changeMenu("user")}
             >
               Usuário
             </button>
@@ -74,6 +88,7 @@ function App() {
             <button
               onClick={() => {
                 localStorage.removeItem("token");
+                localStorage.removeItem("menu"); // limpar página salva
                 setMenu("auth");
               }}
             >
