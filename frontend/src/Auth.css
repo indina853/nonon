@@ -1,0 +1,44 @@
+.auth-box {
+  max-width: 400px;
+  margin: auto;
+  background: var(--card);
+  padding: 20px;
+  border-radius: 14px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+}
+
+.auth-box h2 {
+  text-align: center;
+}
+
+.auth-box input {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+
+.auth-box button {
+  width: 100%;
+  padding: 12px;
+  margin-top: 14px;
+  font-weight: bold;
+}
+
+.switch {
+  margin-top: 15px;
+  text-align: center;
+}
+
+.switch span {
+  color: #007bff;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.error {
+  color: red;
+  font-size: 12px;
+  margin-top: -6px;
+}

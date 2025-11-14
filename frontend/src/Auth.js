@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { API_URL } from "./api";
+import "./Auth.css";
 
 function Auth({ onLoginSuccess }) {
   const [mode, setMode] = useState("login");
-  const [showPassword, setShowPassword] = useState(false);
 
   const [form, setForm] = useState({
     fullName: "",
@@ -14,26 +14,17 @@ function Auth({ onLoginSuccess }) {
 
   const [loading, setLoading] = useState(false);
 
-  // -------------------------------
-  // MÁSCARA AUTOMÁTICA DE TELEFONE
-  // -------------------------------
+  // ------------------ MÁSCARA DE TELEFONE ------------------
   const formatPhone = (value) => {
-    value = value.replace(/\D/g, ""); // remove tudo que não é número
+    value = value.replace(/\D/g, "");
 
     if (value.length <= 10) {
-      return value
-        .replace(/(\d{2})(\d)/, "($1) $2")
-        .replace(/(\d{4})(\d)/, "$1-$2");
-    } else {
-      return value
-        .replace(/(\d{2})(\d)/, "($1) $2")
-        .replace(/(\d{5})(\d)/, "$1-$2");
+      return value.replace(/(\d{2})(\d{4})(\d{0,4})/, "($1) $2-$3");
     }
+
+    return value.replace(/(\d{2})(\d{5})(\d{0,4})/, "($1) $2-$3");
   };
 
-  // -------------------------------
-  // ATUALIZA CAMPOS DO FORMULÁRIO
-  // -------------------------------
   const handleChange = (e) => {
     let { name, value } = e.target;
 
@@ -44,23 +35,18 @@ function Auth({ onLoginSuccess }) {
     setForm({ ...form, [name]: value });
   };
 
-  // -------------------------------
-  // VALIDAR TELEFONE
-  // -------------------------------
-  const validatePhone = () => {
-    const onlyNumbers = form.phone.replace(/\D/g, "");
+  // ------------------ VALIDAÇÕES ------------------
+  const isFullNameValid = form.fullName.trim().split(" ").length >= 2;
+  const phoneNumbers = form.phone.replace(/\D/g, "");
+  const isPhoneValid = phoneNumbers.length >= 10 && phoneNumbers.length <= 11;
 
-    if (onlyNumbers.length < 10 || onlyNumbers.length > 11) {
-      alert("Telefone inválido. Use DDD + número.");
-      return false;
-    }
+  const isRegisterValid =
+    isFullNameValid &&
+    isPhoneValid &&
+    form.email.length > 3 &&
+    form.password.length >= 4;
 
-    return true;
-  };
-
-  // -------------------------------
-  // LOGIN
-  // -------------------------------
+  // ------------------ LOGIN ------------------
   const handleLogin = async () => {
     setLoading(true);
     try {
@@ -69,35 +55,28 @@ function Auth({ onLoginSuccess }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email: form.email,
-          password: form.password
-        })
+          password: form.password,
+        }),
       });
 
       const data = await res.json();
       setLoading(false);
 
-      if (!res.ok) {
-        alert(data.message || "Erro ao fazer login");
-        return;
-      }
+      if (!res.ok) return alert(data.message);
 
       localStorage.setItem("token", data.token);
       onLoginSuccess();
-
     } catch (err) {
+      alert("Erro ao conectar ao servidor.");
       setLoading(false);
-      alert("Erro ao conectar com o servidor.");
     }
   };
 
-  // -------------------------------
-  // CADASTRO
-  // -------------------------------
+  // ------------------ CADASTRO ------------------
   const handleRegister = async () => {
-    if (!validatePhone()) return;
+    if (!isRegisterValid) return;
 
     setLoading(true);
-
     try {
       const res = await fetch(`${API_URL}/auth/register`, {
         method: "POST",
@@ -106,43 +85,26 @@ function Auth({ onLoginSuccess }) {
           fullName: form.fullName,
           email: form.email,
           password: form.password,
-          phone: form.phone
-        })
+          phone: form.phone.replace(/\D/g, ""),
+        }),
       });
 
       const data = await res.json();
       setLoading(false);
 
-      if (!res.ok) {
-        alert(data.message || "Erro ao criar conta");
-        return;
-      }
+      if (!res.ok) return alert(data.message);
 
-      alert(`Conta criada!\nSeu usuário: @${data.usernameGerado}`);
-
+      alert("Conta criada com sucesso!");
       setMode("login");
-
     } catch (err) {
+      alert("Erro ao conectar ao servidor.");
       setLoading(false);
-      alert("Erro ao conectar com o servidor.");
     }
   };
 
   return (
-    <div
-      style={{
-        maxWidth: "400px",
-        margin: "auto",
-        padding: 20,
-        background: "var(--bg2)",
-        borderRadius: 12,
-        boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
-        marginTop: 40
-      }}
-    >
-      <h2 style={{ textAlign: "center", marginBottom: 20 }}>
-        {mode === "login" ? "🔐 Login" : "👤 Criar Conta"}
-      </h2>
+    <div className="auth-box">
+      <h2>{mode === "login" ? "🔐 Login" : "📝 Criar Conta"}</h2>
 
       {mode === "register" && (
         <>
@@ -151,17 +113,20 @@ function Auth({ onLoginSuccess }) {
             placeholder="Nome completo"
             value={form.fullName}
             onChange={handleChange}
-            required
           />
+          {!isFullNameValid && form.fullName.length > 0 && (
+            <p className="error">Digite nome + sobrenome</p>
+          )}
 
           <input
             name="phone"
             placeholder="Telefone"
             value={form.phone}
             onChange={handleChange}
-            maxLength={15}
-            required
           />
+          {!isPhoneValid && form.phone.length > 0 && (
+            <p className="error">Telefone inválido</p>
+          )}
         </>
       )}
 
@@ -171,64 +136,39 @@ function Auth({ onLoginSuccess }) {
         placeholder="E-mail"
         value={form.email}
         onChange={handleChange}
-        required
       />
 
-      <div style={{ position: "relative" }}>
-        <input
-          type={showPassword ? "text" : "password"}
-          name="password"
-          placeholder="Senha"
-          value={form.password}
-          onChange={handleChange}
-          required
-          style={{ width: "100%" }}
-        />
-
-        <span
-          onClick={() => setShowPassword(!showPassword)}
-          style={{
-            position: "absolute",
-            right: 10,
-            top: 10,
-            cursor: "pointer",
-            opacity: 0.7
-          }}
-        >
-          {showPassword ? "👁️" : "🙈"}
-        </span>
-      </div>
+      <input
+        type="password"
+        name="password"
+        placeholder="Senha"
+        value={form.password}
+        onChange={handleChange}
+      />
 
       {mode === "login" ? (
         <button disabled={loading} onClick={handleLogin}>
           {loading ? "Entrando..." : "Entrar"}
         </button>
       ) : (
-        <button disabled={loading} onClick={handleRegister}>
+        <button
+          disabled={!isRegisterValid || loading}
+          onClick={handleRegister}
+        >
           {loading ? "Criando..." : "Criar Conta"}
         </button>
       )}
 
-      <p style={{ marginTop: 12, textAlign: "center", fontSize: 14 }}>
+      <p className="switch">
         {mode === "login" ? (
           <>
-            Não tem conta?{" "}
-            <span
-              style={{ color: "#007bff", cursor: "pointer", fontWeight: "bold" }}
-              onClick={() => setMode("register")}
-            >
-              Criar conta
-            </span>
+            Não tem conta?
+            <span onClick={() => setMode("register")}> Criar</span>
           </>
         ) : (
           <>
-            Já tem conta?{" "}
-            <span
-              style={{ color: "#007bff", cursor: "pointer", fontWeight: "bold" }}
-              onClick={() => setMode("login")}
-            >
-              Entrar
-            </span>
+            Já tem conta?
+            <span onClick={() => setMode("login")}> Entrar</span>
           </>
         )}
       </p>
