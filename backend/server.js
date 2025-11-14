@@ -6,7 +6,7 @@ dotenv.config();
 
 import motoboyRoutes from "./routes/motoboys.js";
 import pedidoRoutes from "./routes/pedidos.js";
-import authRoutes from "./routes/auth.js";
+import authRoutes from "./routes/authRoutes.js";
 
 dotenv.config();
 const app = express();

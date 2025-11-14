@@ -1,11 +1,10 @@
 import React, { useState } from "react";
 import { API_URL } from "./api";
 
-function Auth() {
-  const [mode, setMode] = useState("login"); // "login" ou "register"
-
+function Auth({ onLoginSuccess }) {
+  const [mode, setMode] = useState("login");
   const [form, setForm] = useState({
-    username: "",
+    fullName: "",
     email: "",
     password: ""
   });
@@ -29,7 +28,7 @@ function Auth() {
 
       if (data.token) {
         localStorage.setItem("token", data.token);
-        alert("Login realizado com sucesso!");
+        onLoginSuccess();
       } else {
         alert(data.message || "Erro ao fazer login");
       }
@@ -45,7 +44,7 @@ function Auth() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          username: form.username,
+          fullName: form.fullName,
           email: form.email,
           password: form.password
         })
@@ -54,7 +53,7 @@ function Auth() {
       const data = await res.json();
       alert(data.message || "Conta criada com sucesso!");
 
-      // Após cadastro, mudar para login
+      // Após cadastro → voltar para login
       setMode("login");
     } catch (err) {
       alert("Erro ao conectar com o servidor.");
@@ -67,9 +66,9 @@ function Auth() {
 
       {mode === "register" && (
         <input
-          name="username"
-          placeholder="Nome de usuário"
-          value={form.username}
+          name="fullName"
+          placeholder="Nome completo"
+          value={form.fullName}
           onChange={handleChange}
         />
       )}
