@@ -5,6 +5,8 @@ import Auth from "./Auth";
 import User from "./User";
 import "./App.css";
 
+import toast, { Toaster } from "react-hot-toast";
+
 function App() {
   const [menu, setMenu] = useState("auth");
 
@@ -20,11 +22,14 @@ function App() {
   }, []);
 
   const toggleTheme = () => {
-    const currentTheme = document.documentElement.getAttribute("data-theme") || "light";
+    const currentTheme =
+      document.documentElement.getAttribute("data-theme") || "light";
     const nextTheme = currentTheme === "dark" ? "light" : "dark";
 
     document.documentElement.setAttribute("data-theme", nextTheme);
     localStorage.setItem("theme", nextTheme);
+
+    toast.success(`Tema alterado para: ${nextTheme === "dark" ? "Escuro 🌙" : "Claro ☀️"}`);
   };
 
   // ------------------------ LOGIN ------------------------
@@ -33,52 +38,76 @@ function App() {
     if (token) setMenu("motoboys");
   }, []);
 
-  const handleLoginSuccess = () => setMenu("motoboys");
+  const handleLoginSuccess = () => {
+    toast.success("Login realizado com sucesso! 🔓");
+    setMenu("motoboys");
+  };
+
+  const logout = () => {
+    localStorage.removeItem("token");
+    setMenu("auth");
+    toast("Você saiu 👋");
+  };
 
   return (
-    <div className="app">
+    <>
+      {/* Toast Notifications */}
+      <Toaster position="top-center" />
 
-      <header>
-        <h1>🚀 Delivery Manager</h1>
+      <div className="app">
+        <header>
+          <h1>🚀 Delivery Manager</h1>
 
-        {/* Botão de tema */}
-        <button className="theme-toggle" onClick={toggleTheme}>
-          🌙
-        </button>
+          {/* Botão de tema */}
+          <button className="theme-toggle" onClick={toggleTheme}>
+            🌙
+          </button>
 
-        {menu !== "auth" && (
-          <nav>
-            <button className={menu === "motoboys" ? "ativo" : ""} onClick={() => setMenu("motoboys")}>
-              Motoboys
-            </button>
+          {menu !== "auth" && (
+            <nav>
+              <button
+                className={menu === "motoboys" ? "ativo" : ""}
+                onClick={() => {
+                  setMenu("motoboys");
+                  toast("Motoboys", { icon: "🏍️" });
+                }}
+              >
+                Motoboys
+              </button>
 
-            <button className={menu === "pedidos" ? "ativo" : ""} onClick={() => setMenu("pedidos")}>
-              Pedidos
-            </button>
+              <button
+                className={menu === "pedidos" ? "ativo" : ""}
+                onClick={() => {
+                  setMenu("pedidos");
+                  toast("Pedidos", { icon: "📦" });
+                }}
+              >
+                Pedidos
+              </button>
 
-            <button className={menu === "user" ? "ativo" : ""} onClick={() => setMenu("user")}>
-              Usuário
-            </button>
+              <button
+                className={menu === "user" ? "ativo" : ""}
+                onClick={() => {
+                  setMenu("user");
+                  toast("Perfil do usuário", { icon: "👤" });
+                }}
+              >
+                Usuário
+              </button>
 
-            <button
-              onClick={() => {
-                localStorage.removeItem("token");
-                setMenu("auth");
-              }}
-            >
-              Sair
-            </button>
-          </nav>
-        )}
-      </header>
+              <button onClick={logout}>Sair</button>
+            </nav>
+          )}
+        </header>
 
-      <main>
-        {menu === "auth" && <Auth onLoginSuccess={handleLoginSuccess} />}
-        {menu === "motoboys" && <Motoboys />}
-        {menu === "pedidos" && <Pedidos />}
-        {menu === "user" && <User key={Date.now()} />}
-      </main>
-    </div>
+        <main>
+          {menu === "auth" && <Auth onLoginSuccess={handleLoginSuccess} />}
+          {menu === "motoboys" && <Motoboys />}
+          {menu === "pedidos" && <Pedidos />}
+          {menu === "user" && <User key={Date.now()} />}
+        </main>
+      </div>
+    </>
   );
 }
 
